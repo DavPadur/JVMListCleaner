@@ -15,6 +15,7 @@ def verify(jl):
             headers.append("Errors")
         
         for row in reader:
+
             updated_row = row.copy()
             row_be_good = True  # Assume row is valid until proven otherwise
             error_msg = ""
@@ -77,6 +78,7 @@ def verify(jl):
     print(f"File saved in: {output_file}")
     print(f"Rows read: {jl.read_rows}, Successful rows: {jl.successful_rows}, Errors: {jl.error_rows}") # temp until we print out in errors.py
 
+    
     input_file_path_str = jl.input_file_path.get()
     output_file = input_file_path_str.replace(".csv", "_output.csv")
     with open(output_file, "w", newline="", encoding='utf-8') as csvfile:
@@ -110,19 +112,13 @@ def format_street(address):
     def capitalize_word(word):
         word = re.sub(r"(?<!\w)(mc)(\w)", lambda m: m.group(1).capitalize() + m.group(2).capitalize(), word, flags=re.IGNORECASE)
         word = re.sub(r"(?<!\w)(o')(\w)", lambda m: m.group(1).capitalize() + m.group(2).capitalize(), word, flags=re.IGNORECASE)
-        if word in Cardinal_Directions:
-            return word.upper() 
-        elif len(word) > 1:
-            return word[0].upper() + word[1:].lower() 
-        else:
-            word.upper()
+        return word[0].upper() + word[1:].lower() if len(word) > 1 else word.upper()
     return " ".join(capitalize_word(word) for word in address.split())
 
 def format_zip(zip):
     zip = re.sub(r"\D", "", zip)  
     return zip[:5]
 
-Cardinal_Directions = ["ne", "nw", "se", "sw"]
 
 state_abbreviations = {
 "Alabama" : "AL",
