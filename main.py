@@ -83,7 +83,7 @@ jl.row_count_str = tk.IntVar(value=jl.read_rows)
 jl.row_count = tk.Label(jl.root, textvariable=jl.row_count_str, font=('Arial', 12))
 jl.row_count.place(x=125, y=258)
 
-success_title = tk.Label(jl.root, text="Successful: ", font=('Arial', 12))
+success_title = tk.Label(jl.root, text="Successes: ", font=('Arial', 12))
 success_title.pack(anchor="w", padx=25, pady=10)
 
 jl.successful_rows_str = tk.IntVar(value=jl.successful_rows)
