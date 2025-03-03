@@ -1,0 +1,16 @@
+{
+    "launch": {
+
+        "configurations": [
+            {
+                "name": "Python: DEFAULT Current File",
+                "type": "python",
+                "request": "launch",
+                "program": "main.py",
+                "console": "integratedTerminal",
+                "autoReload": {"enable": false}
+              }
+        ],
+        "compounds": []
+    }
+}

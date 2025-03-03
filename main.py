@@ -10,6 +10,10 @@ jl = JVMList()
 
 def select_files():
     file_names = filedialog.askopenfilenames(filetypes=[("CSV Files", "*.csv")])
+    jl.read_rows = 0
+    jl.successful_rows = 0
+    jl.error_rows = 0
+    
     if file_names:
         input_file_path_var.set(file_names[0])
         jl.input_file_path = file_names[0]
@@ -17,16 +21,16 @@ def select_files():
         input_file_label_var.set(file_name_short)
         jl.input_file_path = input_file_path_var
 
-        jl.read_rows = 0
-        jl.successful_rows = 0
-        jl.error_rows = 0
-
         jl.row_count_str.set(jl.read_rows)
         jl.successful_rows_str.set(jl.successful_rows)
         jl.error_count_str.set(jl.error_rows)
+        map_button.config(state=tk.NORMAL)
+        verify_button.config(state=tk.NORMAL)
     else:
         input_file_path_var.set("") 
         input_file_label_var.set("No files selected")
+        map_button.config(state=tk.DISABLED)
+        verify_button.config(state=tk.DISABLED)
 
 
 def update_field_dict(event):
@@ -38,7 +42,7 @@ def update_field_dict(event):
 
 # Initialize root window
 jl.root = tk.Tk()
-jl.root.geometry("600x500")
+jl.root.geometry("600x550")
 jl.root.title("JVM List Cleaner")
 jl.root.iconbitmap("res/icon.ico")
 
@@ -63,13 +67,43 @@ input_file_label.pack(anchor="w", padx=40, pady=5)
 
 
 # Map Button
-map_button = tk.Button(jl.root, text='Map', command=lambda: map(jl))
+map_button = tk.Button(jl.root, text='Map', state=tk.DISABLED, command=lambda: map(jl))
 map_button.pack(anchor="w", padx=20, pady=20)
 
 
 # Verify Button
-verify_button = tk.Button(jl.root, text='Clean File', command=lambda: verify(jl))
-verify_button.place(x=250, y=375)
+verify_button = tk.Button(jl.root, text='Clean File', state=tk.DISABLED, command=lambda: verify(jl))
+verify_button.place(x=250, y=475)
+
+# List Info
+list_info_title = tk.Label(jl.root, text="List Info", font=('Arial', 14))
+list_info_title.pack(anchor="w", padx=25, pady=10)
+
+list_date_title = tk.Label(jl.root, text="List Date: ", font=('Arial', 12))
+list_date_title.pack(anchor="w", padx=25, pady=10)
+
+jl.list_date_value = jl.list_date_value_default
+list_date_input = tk.Text(jl.root, height=1, width=11)
+list_date_input.insert('1.0', jl.list_date_value)
+list_date_input.place(x=110, y=263)
+
+list_type_title = tk.Label(jl.root, text="List Type: ", font=('Arial', 12))
+list_type_title.pack(anchor="w", padx=25, pady=10)
+
+jl.list_type_value = tk.StringVar()
+list_type_input = ttk.Combobox(jl.root, textvariable=jl.list_type_value, values=jl.list_type_options, width=11) 
+list_type_input.place(x=110, y=305)
+
+# # Create labels and dropdown menus
+# for idx, field in enumerate(jl.fields):
+#     label = tk.Label(dropdown_frame, text=field, font=('Arial', 12))
+#     label.grid(row=idx, column=0, padx=10, pady=5, sticky="w")
+
+#     dropdown = ttk.Combobox(dropdown_frame, width=20) 
+#     dropdown.grid(row=idx, column=1, padx=10, pady=5)
+#     jl.dropdown_options.append(dropdown)
+
+#     dropdown.bind("<<ComboboxSelected>>", update_field_dict)
 
 
 # Errors Section
@@ -81,21 +115,21 @@ row_title.pack(anchor="w", padx=25, pady=10)
 
 jl.row_count_str = tk.IntVar(value=jl.read_rows)
 jl.row_count = tk.Label(jl.root, textvariable=jl.row_count_str, font=('Arial', 12))
-jl.row_count.place(x=125, y=258)
+jl.row_count.place(x=125, y=395)
 
 success_title = tk.Label(jl.root, text="Successes: ", font=('Arial', 12))
 success_title.pack(anchor="w", padx=25, pady=10)
 
 jl.successful_rows_str = tk.IntVar(value=jl.successful_rows)
 jl.success_count = tk.Label(jl.root, textvariable=jl.successful_rows_str, font=('Arial', 12))
-jl.success_count.place(x=125, y=302)
+jl.success_count.place(x=125, y=438)
 
 error_title = tk.Label(jl.root, text="Errors: ", font=('Arial', 12))
 error_title.pack(anchor="w", padx=25, pady=10)
 
 jl.error_count_str = tk.IntVar(value=jl.error_rows)
 jl.error_count = tk.Label(jl.root, textvariable=jl.error_count_str, font=('Arial', 12))
-jl.error_count.place(x=125, y=348)
+jl.error_count.place(x=125, y=481)
 
 
 # Dropdown Menus Section
@@ -105,7 +139,7 @@ dropdown_frame = tk.Frame(jl.root)
 dropdown_frame.place(x=250, y=55)
 
 jl.fields = [
-    "First Name", "Last Name", "Email", "Phone", "Street Address", "City", "State", "Zip Code", "County"
+    "First Name", "Last Name", "Email", "Phone", "Street Address", "City", "State", "Zip Code", "County", "Listing Price", "Loan Amount", "Credit Amount"
 ]
 
 jl.field_dict = {}  # field type : csv header
