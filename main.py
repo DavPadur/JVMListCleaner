@@ -1,7 +1,8 @@
 import tkinter as tk
 from tkinter import filedialog
-import os
 from tkinter import ttk
+import os
+import configparser
 from map import map
 from verify import verify
 from jvmlist import JVMList
@@ -42,7 +43,7 @@ def update_field_dict(event):
 
 # Initialize root window
 jl.root = tk.Tk()
-jl.root.geometry("600x550")
+jl.root.geometry("600x650")
 jl.root.title("JVM List Cleaner")
 jl.root.iconbitmap("res/icon.ico")
 
@@ -130,6 +131,10 @@ error_title.pack(anchor="w", padx=25, pady=10)
 jl.error_count_str = tk.IntVar(value=jl.error_rows)
 jl.error_count = tk.Label(jl.root, textvariable=jl.error_count_str, font=('Arial', 12))
 jl.error_count.place(x=125, y=481)
+
+jl.status_box = tk.Text(jl.root, width=50, height=5.5)
+jl.status_box.config(state=tk.DISABLED)
+jl.status_box.place(x=100, y=530)
 
 
 # Dropdown Menus Section

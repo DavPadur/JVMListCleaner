@@ -4,10 +4,7 @@ from jvmlist import JVMList
 
 
 def map(jl):
-
-    if not jl.input_file_path.get():
-        print("No file selected for mapping.")
-        return
+    jl.overwrite_status_box(f'Attempting to map file: {jl.get_file_name()}')
 
     try:
         with open(jl.input_file_path.get(), 'r', encoding='utf-8') as file:
@@ -19,9 +16,11 @@ def map(jl):
             for row in reader:
                 if any(row):  # Only count non-empty rows
                     jl.read_rows += 1
+        jl.append_status_box(f'... {jl.read_rows} rows successfully')
 
     except Exception as e:
         print(f"Error reading file: {e}")
+        jl.append_status_box(f'... Unable to read file')
         return
     
     jl.row_count_str.set(jl.read_rows)
@@ -65,7 +64,7 @@ def map(jl):
                 break
     
     # Find type from filename jl.input_file_path
-    file_name_split = jl.input_file_path.get().split('/')[-1].lower().split(' ')
+    file_name_split = jl.get_file_name().lower().split(' ')
 
     jl.list_type_value.set('')
     for k in jl.list_type_options:
@@ -74,6 +73,7 @@ def map(jl):
             break;
 
     jl.row_count_str.set(jl.read_rows)
+    jl.append_status_box(f'... File mapped succesfully')
         
 
             
