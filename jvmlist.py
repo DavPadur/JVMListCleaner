@@ -1,9 +1,12 @@
 import io
 import csv
 import tkinter as tk
+from tkinter import ttk
 from datetime import datetime
 
 class JVMList:
+    title_options = ["File", "Edit", "View", "Database"]
+
     input_file_path = None
     fields =[]
     field_dict = {}
@@ -63,6 +66,7 @@ class JVMList:
 #         for row in self.reader:
 #             self.id_db[row['email']] = row['id']
 #             self.owner_db[row['email']] = row['owner name']
+#     # Add an argument that will add whatever file path is used in tkinter
 
 #     def get_id(self, email):
 #         try:

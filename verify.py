@@ -2,14 +2,22 @@ import csv
 import re
 import tkinter as tk
 from jvmlist import JVMList
-# from jvmlist import JVMDb
+#from jvmlist import JVMDb
+
+# add in argyment to verify where you pass teh db and check if there is one
+# operate as normal if it fails, if it is true, then add the extra step of the contact id
 
 
-def verify(jl):
+def verify(jl): # add db back as a parameter
     updated_rows = []
     # db = JVMDb()
     jl.overwrite_status_box(f'Attempting to clean file: {jl.get_file_name()}')
     
+    #if db.file_path is not None:
+        # implement extra step for the contact id
+        #pass
+        
+
     with open(jl.input_file_path.get(), "r", newline="", encoding='utf-8') as csvfile:
         reader = list(csv.DictReader(csvfile))
         headers = list(reader[0].keys())
@@ -55,7 +63,7 @@ def verify(jl):
             "Marketing List Type": "Marketing List Type",
         }
         jl.append_status_box(f'... Headers mapped')
-       
+
         for row in reader:
             updated_row = {updated_headers.get(col, col): row.get(col, "").strip() for col in header_order}
             row_be_good = True  
@@ -70,34 +78,33 @@ def verify(jl):
                 value = row[column].strip()
                 updated_value = value  
                 error = None
+                
+                match header:
+                    case "First Name" : 
+                        updated_value, error = proper_name(value, 'first_name')
+                    case "Last Name" : 
+                        updated_value, error = proper_name(value, 'last_name')
+                    case "Email" : 
+                        updated_value, error = valid_email(value)
+                    case "Phone" : 
+                        updated_value, error = valid_phone(value)
+                    case "Street Address" : 
+                        updated_value = format_street(value)
+                    case "City" : 
+                        updated_value, error = proper_name(value, 'city')
+                    case "State" : 
+                        updated_value, error = format_state(value)
+                    case "Zip Code" : 
+                        updated_value = format_zip(value)
+                    case "County" : 
+                        updated_value, error = proper_name(value, 'county')
+                    case "Listing Price" : 
+                        updated_value, error = format_dollars(value, 'listing_price')
+                    case "Loan Amount" : 
+                        updated_value, error = format_dollars(value, 'loan_amount')
+                    case "Credit Amount" : 
+                        updated_value, error = format_dollars(value, 'credit_amount')
 
-                if header == "First Name":
-                    updated_value, error = proper_name(value, 'first_name')
-                elif header == "Last Name":
-                    updated_value, error = proper_name(value, 'last_name')
-                elif header == "Email":
-                    updated_value, error = valid_email(value)
-                    # if not error:
-                    #     print(db.get_id(value))
-                    #     print(db.get_owner(value))
-                elif header == "Phone":
-                    updated_value, error = valid_phone(value)
-                elif header == "Street Address":
-                    updated_value = format_street(value)
-                elif header == "City":
-                    updated_value, error = proper_name(value, 'city')
-                elif header == "State":
-                    updated_value, error = format_state(value)
-                elif header == "Zip Code":
-                    updated_value = format_zip(value)
-                elif header == "County":
-                    updated_value, error = proper_name(value, 'county')
-                elif header == "Listing Price":
-                    updated_value, error = format_dollars(value, 'listing_price')#re.sub("[^0-9]", "", value)
-                elif header == "Loan Amount":
-                    updated_value, error = format_dollars(value, 'loan_amount')#re.sub("[^0-9]", "", value)
-                elif header == "Credit Amount":
-                    updated_value, error = format_dollars(value, 'credit_amount')#re.sub("[^0-9]", "", value)
 
                 if error:
                     error_msg += error + ', '
@@ -107,6 +114,9 @@ def verify(jl):
                 updated_row[updated_headers[header]] = updated_value
 
             updated_row["Errors"] = error_msg.strip(", ") if not row_be_good else ""
+            # Add here another if for if db exists
+            # getID is the function in jvmlist
+            # and OwnderID
             # updated_row["ContactId"] = '' #to do
             # updated_row["Owner Name"] = '' #to do
             # updated_row["OwnerId"] = '' #to do
@@ -198,7 +208,7 @@ def format_state(state):
     if state.upper() in state_abbreviations.values():
         return state.upper(), error
     updated_value = state_abbreviations.get(state.title(), "")
-    if not updated_value:
+    if not updated_value or state is '':
         error = 'Invalid state'
     return updated_value, error
 
@@ -208,12 +218,25 @@ def format_zip(zip):
 def format_dollars(dollars, type):
     error = None
     out = None
-    dollars = int(re.sub(r"[^0-9]", "", dollars))
-    if not dollars:
-        error = 'Missing ' + type
-        return dollars, error
-    out = f"${dollars:,}"
+    cleaned_dollars = re.sub(r"[^\d.]", "", dollars)
+
+    if '.' in cleaned_dollars:
+        try:
+            amount = float(cleaned_dollars)
+            out = f"${amount:,.2f}"  
+        except ValueError:
+            error = f"Invalid {type} amount"
+            return dollars, error
+    else:
+        try:
+            amount = int(cleaned_dollars)
+            out = f"${amount:,}"  
+        except ValueError:
+            error = f"Invalid {type} amount"
+            return dollars, error
+
     return out, error
+
 
 
 
