@@ -6,10 +6,10 @@ import configparser
 from map import map
 from verify import verify
 from jvmlist import JVMList
-#from jvmlist import JVMDb
+from jvmlist import JVMDb
 
 jl = JVMList()
-#db = JVMDb()
+db = JVMDb()
 
 def select_files():
     file_names = filedialog.askopenfilenames(filetypes=[("CSV Files", "*.csv")])
@@ -36,33 +36,33 @@ def select_files():
         verify_button.config(state=tk.DISABLED)
 
 
-# def db_select():
-#     file_names = filedialog.askopenfilenames(filetypes=[("CSV Files", "*.csv")])
+def db_select():
+    file_names = filedialog.askopenfilenames(filetypes=[("CSV Files", "*.csv")])
     
-#     if file_names:
-#         db_file_path_var.set(file_names[0])
-#         db.file_path = file_names[0]
-#         file_name_short = ", ".join([os.path.basename(file) for file in file_names])
-#         db_file_label_var.set(file_name_short)
-#         db.file_path = db_file_path_var
-#         db_load_button.config(state=tk.NORMAL)
-#         db_edit_button.config(state=tk.NORMAL)
-#         db_clean_button.config(state=tk.NORMAL)
-#     else:
-#         input_file_path_var.set("") 
-#         input_file_label_var.set("No Database")
-#         db_load_button.config(state=tk.DISABLED)
-#         db_edit_button.config(state=tk.DISABLED)
-#         db_clean_button.config(state=tk.DISABLED)
+    if file_names:
+        db_file_path_var.set(file_names[0])
+        db.file_path = file_names[0]
+        file_name_short = ", ".join([os.path.basename(file) for file in file_names])
+        db_file_label_var.set(file_name_short)
+        db.file_path = db_file_path_var
+        db_load_button.config(state=tk.NORMAL)
+        db_edit_button.config(state=tk.NORMAL)
+        db_clean_button.config(state=tk.NORMAL)
+    else:
+        input_file_path_var.set("") 
+        input_file_label_var.set("No Database")
+        db_load_button.config(state=tk.DISABLED)
+        db_edit_button.config(state=tk.DISABLED)
+        db_clean_button.config(state=tk.DISABLED)
 
-# def file_db():
-#     pass
+def file_db():
+    pass
 
-# def edit_db():
-#     pass
+def edit_db():
+    pass
     
-# def view_db():
-#     pass
+def view_db():
+    pass
 
 def update_field_dict(event):
     for idx, dropdown in enumerate(jl.dropdown_options):
@@ -157,8 +157,8 @@ jl.status_box.place(x=25, y=530)
 db_title = tk.Label(jl.root, text="Database Functions", font=('Arial', 14))
 db_title.place(x=390, y=490)
 
-# db_select_button = tk.Button(jl.root, text="Database", command=db_select)
-# db_select_button.place(x=400, y=525)
+db_select_button = tk.Button(jl.root, text="Database", command=db_select)
+db_select_button.place(x=400, y=525)
 
 db_file_path = tk.StringVar()
 db_file_path_var = db_file_path
@@ -168,14 +168,14 @@ db_file_label_var.set("No Database")
 db_file_label = tk.Label(jl.root, textvariable=db_file_label_var, font=('Arial', 10), anchor="w", wraplength=1000)
 db_file_label.place(x=475, y=525)
 
-# db_edit_button = tk.Button(jl.root, text="File", command=file_db)
-# db_edit_button.place(x=400, y=555)
+db_edit_button = tk.Button(jl.root, text="File", command=file_db)
+db_edit_button.place(x=400, y=555)
 
-# db_clean_button = tk.Button(jl.root, text="Edit", command=edit_db)
-# db_clean_button.place(x=400, y=585)
+db_clean_button = tk.Button(jl.root, text="Edit", command=edit_db)
+db_clean_button.place(x=400, y=585)
 
-# db_load_button = tk.Button(jl.root, text="View", command=view_db)
-# db_load_button.place(x=400, y=615)
+db_load_button = tk.Button(jl.root, text="View", command=view_db)
+db_load_button.place(x=400, y=615)
 
 # Dropdown Menus Section
 dropdown_title = tk.Label(jl.root, text="Input File Mapping", font=('Arial', 14))

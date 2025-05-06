@@ -2,7 +2,7 @@ import csv
 import re
 import tkinter as tk
 from jvmlist import JVMList
-#from jvmlist import JVMDb
+from jvmlist import JVMDb
 
 # add in argyment to verify where you pass teh db and check if there is one
 # operate as normal if it fails, if it is true, then add the extra step of the contact id

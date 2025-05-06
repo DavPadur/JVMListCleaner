@@ -50,39 +50,39 @@ class JVMList:
         self.status_box.config(state=tk.DISABLED)
 
 
-# class JVMDb:
-#     file_path = None
-#     file = None
-#     reader = None
-#     id_db = {} # email is the key to return the id
-#     owner_db = {} # email is the key to return the owner
-#     new_ids = {}
-#     new_owners = [] 
+class JVMDb:
+    file_path = None
+    file = None
+    reader = None
+    id_db = {} # email is the key to return the id
+    owner_db = {} # email is the key to return the owner
+    new_ids = {}
+    new_owners = [] 
 
-#     def __init__(self):
-#         self.file_path = '../../test/test_email_db.csv'
-#         self.file = open(self.file_path, "r", newline="", encoding='utf-8')
-#         self.reader = list(csv.DictReader(self.file))
-#         for row in self.reader:
-#             self.id_db[row['email']] = row['id']
-#             self.owner_db[row['email']] = row['owner name']
-#     # Add an argument that will add whatever file path is used in tkinter
+    def __init__(self):
+        self.file_path = 'Users//David//Documents//JVMListCleaner//llpa_test.csv'
+        self.file = open(self.file_path, "r", newline="", encoding='utf-8')
+        self.reader = list(csv.DictReader(self.file))
+        for row in self.reader:
+            self.id_db[row['email']] = row['id']
+            self.owner_db[row['email']] = row['owner name']
+    # Add an argument that will add whatever file path is used in tkinter
 
-#     def get_id(self, email):
-#         try:
-#             return self.id_db[email]
-#         except:
-#             return ''
+    def get_id(self, email):
+        try:
+            return self.id_db[email]
+        except:
+            return ''
     
-#     def get_owner(self, email):
-#         try:
-#             return self.owner_db[email]
-#         except:
-#             return ''
+    def get_owner(self, email):
+        try:
+            return self.owner_db[email]
+        except:
+            return ''
     
-#     def print_db(self, type):
-#         if type == 'id':
-#             for x in self.id_db: print(f'{x} : {self.id_db[x]}')
-#         if type == 'owner': 
-#             for x in self.owner_db: print(f'{x} : {self.owner_db[x]}')
+    def print_db(self, type):
+        if type == 'id':
+            for x in self.id_db: print(f'{x} : {self.id_db[x]}')
+        if type == 'owner': 
+            for x in self.owner_db: print(f'{x} : {self.owner_db[x]}')
 
