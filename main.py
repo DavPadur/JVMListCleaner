@@ -6,7 +6,7 @@ import configparser
 from map import map
 from verify import verify
 from jvmlist import JVMList
-from jvmlist import JVMDb
+from jvmdb import JVMDb
 
 jl = JVMList()
 db = JVMDb()
