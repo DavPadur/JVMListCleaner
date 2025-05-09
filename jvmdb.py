@@ -12,6 +12,12 @@ class JVMDb:
     owner_db = {}    # email -> owner name
     new_ids = {}
     new_owners = []
+    
+    root = None
+    db_file_path = None
+    db_file_path_var = None
+    db_file_label = None
+    db_file_label_var = None
 
     def __init__(self, use_salesforce=False, secrets_path=os.path.expanduser("~/.sf_secrets.json"), file_path=None):
         if use_salesforce:
@@ -53,10 +59,16 @@ class JVMDb:
             object_name, email_field = entry[0], entry[1]
             extra = entry[2] if len(entry) > 2 else ""
             id_field = "X18_Digit_Lead_ID__c" if object_name == "Lead" else "X18_Digit_Contact_ID__c"
-            query = (
-                f"SELECT {id_field}, OwnerId, {email_field}, MobilePhone, FirstName, LastName "
-                f"FROM {object_name} WHERE {email_field} LIKE '%@%' {extra}"
-            )
+            if object_name == "Lead":
+                query = (
+                    f"SELECT {id_field}, OwnerId, {email_field}, MobilePhone, FirstName, LastName "
+                    f"FROM {object_name} WHERE {email_field} LIKE '%@%' AND IsConverted = FALSE"
+                )
+            else:
+                query = (
+                    f"SELECT {id_field}, OwnerId, {email_field}, MobilePhone, FirstName, LastName "
+                    f"FROM {object_name} WHERE {email_field} LIKE '%@%'"
+                )
             result = sf.query_all(query)
             records = result['records']
             df = pd.DataFrame(records).drop(columns='attributes')

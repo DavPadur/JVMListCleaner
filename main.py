@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import filedialog
+from tkinter import Tk, Radiobutton, Label, Button, filedialog, IntVar
 from tkinter import ttk
 import os
 import configparser
@@ -22,7 +22,7 @@ def select_files():
         jl.input_file_path = file_names[0]
         file_name_short = ", ".join([os.path.basename(file) for file in file_names])
         input_file_label_var.set(file_name_short)
-        jl.input_file_path = input_file_path_var
+        jl.input_file_path = input_file_path_var  
 
         jl.row_count_str.set(jl.read_rows)
         jl.successful_rows_str.set(jl.successful_rows)
@@ -45,14 +45,12 @@ def db_select():
         file_name_short = ", ".join([os.path.basename(file) for file in file_names])
         db_file_label_var.set(file_name_short)
         db.file_path = db_file_path_var
-        db_load_button.config(state=tk.NORMAL)
-        db_edit_button.config(state=tk.NORMAL)
+        db_map_button.config(state=tk.NORMAL)
         db_clean_button.config(state=tk.NORMAL)
     else:
         input_file_path_var.set("") 
         input_file_label_var.set("No Database")
-        db_load_button.config(state=tk.DISABLED)
-        db_edit_button.config(state=tk.DISABLED)
+        db_map_button.config(state=tk.DISABLED)
         db_clean_button.config(state=tk.DISABLED)
 
 def file_db():
@@ -97,15 +95,15 @@ input_file_label.pack(anchor="w", padx=40, pady=5)
 
 # Map Button
 map_button = tk.Button(jl.root, text='Map', state=tk.DISABLED, command=lambda: map(jl))
-map_button.pack(anchor="w", padx=20, pady=20)
+map_button.pack(anchor="w", padx=20, pady=10)
 
 # Verify Button
-verify_button = tk.Button(jl.root, text='Clean File', state=tk.DISABLED, command=lambda: verify(jl))
+verify_button = tk.Button(jl.root, text='Clean File', state=tk.DISABLED, command=lambda: verify(jl, db))
 verify_button.place(x=250, y=475)
 
 # List Info
 list_info_title = tk.Label(jl.root, text="List Info", font=('Arial', 14))
-list_info_title.pack(anchor="w", padx=25, pady=10)
+list_info_title.pack(anchor="w", padx=25, pady=20)
 
 list_date_title = tk.Label(jl.root, text="List Date: ", font=('Arial', 12))
 list_date_title.pack(anchor="w", padx=25, pady=10)
@@ -121,7 +119,6 @@ list_type_title.pack(anchor="w", padx=25, pady=10)
 jl.list_type_value = tk.StringVar()
 list_type_input = ttk.Combobox(jl.root, textvariable=jl.list_type_value, values=jl.list_type_options, width=11) 
 list_type_input.place(x=110, y=305)
-
 
 # Errors Section
 error_title = tk.Label(jl.root, text="Errors", font=('Arial', 14))
@@ -152,12 +149,12 @@ jl.status_box = tk.Text(jl.root, width=45, height=5.5)
 jl.status_box.config(state=tk.DISABLED)
 jl.status_box.place(x=25, y=530)
 
-# Adding Buttons for the Database Functions
+# Buttons for the Database Functions
 
-db_title = tk.Label(jl.root, text="Database Functions", font=('Arial', 14))
+db_title = tk.Label(db.root, text="Database Functions", font=('Arial', 14))
 db_title.place(x=390, y=490)
 
-db_select_button = tk.Button(jl.root, text="Database", command=db_select)
+db_select_button = tk.Button(jl.root, text="Database", command=db_select) #auto upload database, from the one previously downloaded
 db_select_button.place(x=400, y=525)
 
 db_file_path = tk.StringVar()
@@ -165,22 +162,19 @@ db_file_path_var = db_file_path
 db_file_label_var = tk.StringVar()
 db_file_label_var.set("No Database")
 
-db_file_label = tk.Label(jl.root, textvariable=db_file_label_var, font=('Arial', 10), anchor="w", wraplength=1000)
+db_file_label = tk.Label(db.root, textvariable=db_file_label_var, font=('Arial', 10), anchor="w", wraplength=1000)
 db_file_label.place(x=475, y=525)
 
-db_edit_button = tk.Button(jl.root, text="File", command=file_db)
-db_edit_button.place(x=400, y=555)
+db_map_button = tk.Button(db.root, text='DB Map', state=tk.DISABLED, command=lambda: map(jl))
+db_map_button.place(x=400, y=565)
 
-db_clean_button = tk.Button(jl.root, text="Edit", command=edit_db)
-db_clean_button.place(x=400, y=585)
-
-db_load_button = tk.Button(jl.root, text="View", command=view_db)
-db_load_button.place(x=400, y=615)
+db_clean_button = tk.Button(db.root, text="DB Update", command=edit_db)
+db_clean_button.place(x=400, y=600)
 
 # Dropdown Menus Section
-dropdown_title = tk.Label(jl.root, text="Input File Mapping", font=('Arial', 14))
+dropdown_title = tk.Label(db.root, text="Input File Mapping", font=('Arial', 14))
 dropdown_title.place(x=250, y=5)
-dropdown_frame = tk.Frame(jl.root)
+dropdown_frame = tk.Frame(db.root)
 dropdown_frame.place(x=250, y=55)
 
 jl.fields = [
@@ -188,8 +182,7 @@ jl.fields = [
 ]
 
 jl.field_dict = {}  # field type : csv header
-                 
-                 
+                              
 jl.dropdown_options = []
 
 jl.output_options = []
@@ -204,7 +197,5 @@ for idx, field in enumerate(jl.fields):
     jl.dropdown_options.append(dropdown)
 
     dropdown.bind("<<ComboboxSelected>>", update_field_dict)
-
-
 
 jl.root.mainloop()

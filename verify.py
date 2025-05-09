@@ -8,14 +8,15 @@ from jvmdb import JVMDb
 # operate as normal if it fails, if it is true, then add the extra step of the contact id
 
 
-def verify(jl): # add db back as a parameter
+def verify(jl, db=None): # add db back as a parameter
     updated_rows = []
     # db = JVMDb()
     jl.overwrite_status_box(f'Attempting to clean file: {jl.get_file_name()}')
     
-    #if db.file_path is not None:
-        # implement extra step for the contact id
-        #pass
+    # Determine source of input: use db.file_path if available, otherwise jl.input_file_path
+    input_path = db.file_path.get() if db and isinstance(db.file_path, tk.StringVar) else (
+        db.file_path if db and db.file_path else (
+        jl.input_file_path.get() if isinstance(jl.input_file_path, tk.StringVar) else jl.input_file_path))
         
 
     with open(jl.input_file_path.get(), "r", newline="", encoding='utf-8') as csvfile:
@@ -114,14 +115,15 @@ def verify(jl): # add db back as a parameter
                 updated_row[updated_headers[header]] = updated_value
 
             updated_row["Errors"] = error_msg.strip(", ") if not row_be_good else ""
-            # Add here another if for if db exists
-            # getID is the function in jvmlist
-            # and OwnderID
-            # updated_row["ContactId"] = '' #to do
-            # updated_row["Owner Name"] = '' #to do
-            # updated_row["OwnerId"] = '' #to do
-            # updated_row["BDO Owner"] = '' #to do
-            # updated_row["Contact Owner"] = '' #to do
+            
+            if db and db.id_db:
+                email = updated_row.get("Email", "")
+                updated_row["ContactId"] = db.get_id(email)
+                updated_row["Owner Name"] = db.get_owner(email)
+                updated_row["OwnerId"] = db.get_owner(email)  # customize if needed
+                updated_row["BDO Owner"] = db.get_owner(email)
+                updated_row["Contact Owner"] = db.get_owner(email)
+
             updated_row["Company Name"] = 'JVM Partner'
             updated_row["RecordTypeId"] = '0121N000000qrYwQAI'
             updated_row["AccountId"] = '0013l00002X71zdAAB'
