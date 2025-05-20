@@ -1,7 +1,6 @@
 import csv
 import os
 import json
-import pandas as pd
 from simple_salesforce import Salesforce
 
 class JVMDb:
@@ -23,7 +22,7 @@ class JVMDb:
         if use_salesforce:
             self.load_from_salesforce(secrets_path)
         else:
-            self.load_from_csv(file_path or 'C:\\Users\\David\\Documents\\JVMListCleaner\\salesforce_test_data.csv')
+            self.load_from_csv(file_path)
 
     def load_from_csv(self, file_path):
         self.file_path = file_path
@@ -34,9 +33,9 @@ class JVMDb:
             self.owner_db[row['email']] = row['owner name']
 
     def load_from_salesforce(self, secrets_path):
-        # Authenticate
         with open(secrets_path, 'r') as f:
             creds = json.load(f)
+
         sf = Salesforce(
             username=creds['username'],
             password=creds['password'],
@@ -53,34 +52,31 @@ class JVMDb:
             ("Lead", "X2nd_Alt_Email__c", "AND IsConverted = FALSE"),
         ]
 
-        all_results = []
+        seen_emails = set()
 
         for entry in queries:
             object_name, email_field = entry[0], entry[1]
             extra = entry[2] if len(entry) > 2 else ""
             id_field = "X18_Digit_Lead_ID__c" if object_name == "Lead" else "X18_Digit_Contact_ID__c"
-            if object_name == "Lead":
-                query = (
-                    f"SELECT {id_field}, OwnerId, {email_field}, MobilePhone, FirstName, LastName "
-                    f"FROM {object_name} WHERE {email_field} LIKE '%@%' AND IsConverted = FALSE"
-                )
-            else:
-                query = (
-                    f"SELECT {id_field}, OwnerId, {email_field}, MobilePhone, FirstName, LastName "
-                    f"FROM {object_name} WHERE {email_field} LIKE '%@%'"
-                )
-            result = sf.query_all(query)
-            records = result['records']
-            df = pd.DataFrame(records).drop(columns='attributes')
-            df = df.rename(columns={email_field: 'Email', id_field: 'ID', 'OwnerId': 'Owner'})
-            all_results.append(df)
 
-        # Combine into one DataFrame and update id/owner dbs
-        combined = pd.concat(all_results, ignore_index=True).drop_duplicates(subset=["Email"])
-        for _, row in combined.iterrows():
-            if pd.notna(row['Email']):
-                self.id_db[row['Email']] = row['ID']
-                self.owner_db[row['Email']] = row['Owner']
+            where_clause = f"{email_field} LIKE '%@%'"
+            if extra:
+                where_clause += f" {extra}"
+
+            query = (
+                f"SELECT {id_field}, OwnerId, {email_field}, MobilePhone, FirstName, LastName "
+                f"FROM {object_name} WHERE {where_clause}"
+            )
+
+            result = sf.query_all(query)
+            records = result.get("records", [])
+
+            for record in records:
+                email = record.get(email_field)
+                if email and email not in seen_emails:
+                    seen_emails.add(email)
+                    self.id_db[email] = record.get(id_field, '')
+                    self.owner_db[email] = record.get('OwnerId', '')
 
     def get_id(self, email):
         return self.id_db.get(email, '')
@@ -90,6 +86,8 @@ class JVMDb:
 
     def print_db(self, type):
         if type == 'id':
-            for x in self.id_db: print(f'{x} : {self.id_db[x]}')
-        if type == 'owner':
-            for x in self.owner_db: print(f'{x} : {self.owner_db[x]}')
+            for email, id_val in self.id_db.items():
+                print(f'{email} : {id_val}')
+        elif type == 'owner':
+            for email, owner in self.owner_db.items():
+                print(f'{email} : {owner}')
