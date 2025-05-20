@@ -1,15 +1,86 @@
 import tkinter as tk
-from tkinter import Tk, Radiobutton, Label, Button, filedialog, IntVar
-from tkinter import ttk
+import csv
 import os
-import configparser
+import json
+import subprocess
+from tkinter import filedialog 
+from tkinter import ttk
 from map import map
 from verify import verify
 from jvmlist import JVMList
 from jvmdb import JVMDb
+from simple_salesforce import SalesforceLogin, Salesforce
 
 jl = JVMList()
 db = JVMDb()
+
+with open("sf_secrets.json", "r") as file:
+    creds = json.load(file)
+
+# Access just the username
+username = creds["username"]
+password = creds["password"]
+security_token = creds["security_token"]
+domain = creds["domain"]
+
+sf = Salesforce(
+    username=username, password=password, security_token=security_token, instance_url="https://brave-impala-i69fxm-dev-ed.trailblaze.my.salesforce.com"
+)
+
+instance_url="https://brave-impala-i69fxm-dev-ed.trailblaze.my.salesforce.com"
+print("Instance URL:", instance_url)
+
+# now you can connect directly:
+#sf = Salesforce(instance_url=instance_url, session_id=session_id)
+#print(sf.query("SELECT Id, Name FROM Account LIMIT 5"))
+
+# Using system() method to execute shell commands
+
+# this logs you in. it only needs to run once per terminal session
+subprocess.Popen('SF Org Login Web', shell=True)
+
+# Runs the queries of Contact
+subprocess.run(["powershell.exe", "-Command", "sf data export bulk --query \"SELECT X18_Digit_Contact_ID__c, OwnerId, Email, MobilePhone, FirstName, LastName FROM Contact WHERE Email LIKE '%@%'\" -o myOrg --output-file='csv1.csv' --wait 1"], shell=True)
+subprocess.run(["powershell.exe", "-Command", "sf data export bulk --query \"SELECT X18_Digit_Contact_ID__c, OwnerId, Alt_Email__c, MobilePhone, FirstName, LastName FROM Contact WHERE Alt_Email__c LIKE '%@%'\" -o myOrg --output-file='csv2.csv' --wait 1"], shell=True)
+subprocess.run(["powershell.exe", "-Command", "sf data export bulk --query \"SELECT X18_Digit_Contact_ID__c, OwnerId, X2nd_Alt_Email__c, MobilePhone, FirstName, LastName FROM Contact WHERE X2nd_Alt_Email__c LIKE '%@%'\" -o myOrg --output-file='csv3.csv' --wait 1"], shell=True)
+
+# Runs the queries of Lead
+subprocess.run(["powershell.exe", "-Command", "sf data export bulk --query \"SELECT X18_Digit_Lead_ID__c, OwnerId, Email, MobilePhone, FirstName, LastName FROM Lead WHERE Email LIKE '%@%' AND IsConverted = FALSE\" -o myOrg --output-file='csv4.csv' --wait 1"], shell=True)
+subprocess.run(["powershell.exe", "-Command", "sf data export bulk --query \"SELECT X18_Digit_Lead_ID__c, OwnerId, Alt_Email__c, MobilePhone, FirstName, LastName FROM Lead WHERE Alt_Email__c LIKE '%@%' AND IsConverted = FALSE\" -o myOrg --output-file='csv5.csv' --wait 1"], shell=True)
+subprocess.run(["powershell.exe", "-Command", "sf data export bulk --query \"SELECT X18_Digit_Lead_ID__c, OwnerId, X2nd_Alt_Email__c, MobilePhone, FirstName, LastName FROM Lead WHERE X2nd_Alt_Email__c LIKE '%@%' AND IsConverted = FALSE\" -o myOrg --output-file='csv6.csv' --wait 1"], shell=True)
+
+#then use python magic to combine all of the csvs into one.
+#this doesn't need to happen here, but i put it all here just for debugging pruposees
+
+#python magic
+def combine_csvs(output_path="combined_output.csv"):
+    csv_files = [f"csv{i}.csv" for i in range(1, 7)]
+    header_written = False
+
+    with open(output_path, "w", newline='', encoding='utf-8') as outfile:
+        writer = None
+
+        for file in csv_files:
+            if os.path.exists(file):
+                with open(file, "r", newline='', encoding='utf-8') as infile:
+                    reader = csv.reader(infile)
+                    try:
+                        header = next(reader)
+                    except StopIteration:
+                        print(f"Skipping empty file: {file}")
+                        continue
+
+                    if not header_written:
+                        writer = csv.writer(outfile)
+                        writer.writerow(header)
+                        header_written = True
+
+                    for row in reader:
+                        writer.writerow(row)
+            else:
+                print(f"File not found: {file}")
+
+    print(f"Combined CSV saved to {output_path}")
 
 def select_files():
     file_names = filedialog.askopenfilenames(filetypes=[("CSV Files", "*.csv")])
@@ -169,7 +240,10 @@ db_map_button = tk.Button(db.root, text='DB Map', state=tk.DISABLED, command=lam
 db_map_button.place(x=400, y=565)
 
 db_clean_button = tk.Button(db.root, text="DB Update", command=edit_db)
-db_clean_button.place(x=400, y=600)
+db_clean_button.place(x=465, y=565)
+
+combine_button = tk.Button(db.root, text="Combine CSVs", command=lambda: combine_csvs("combined_output.csv"))
+combine_button.place(x=400, y=600)
 
 # Dropdown Menus Section
 dropdown_title = tk.Label(db.root, text="Input File Mapping", font=('Arial', 14))
