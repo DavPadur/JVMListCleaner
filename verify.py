@@ -17,8 +17,7 @@ def verify(jl, db=None): # add db back as a parameter
     input_path = db.file_path.get() if db and isinstance(db.file_path, tk.StringVar) else (
         db.file_path if db and db.file_path else (
         jl.input_file_path.get() if isinstance(jl.input_file_path, tk.StringVar) else jl.input_file_path))
-        
-
+    
     with open(jl.input_file_path.get(), "r", newline="", encoding='utf-8') as csvfile:
         reader = list(csv.DictReader(csvfile))
         headers = list(reader[0].keys())
@@ -106,7 +105,6 @@ def verify(jl, db=None): # add db back as a parameter
                     case "Credit Amount" : 
                         updated_value, error = format_dollars(value, 'credit_amount')
 
-
                 if error:
                     error_msg += error + ', '
                     row_be_good = False
@@ -179,7 +177,7 @@ def proper_name(name, type):
 
     if type == 'last_name':
         out = re.sub(r"\s(iii|ii|iv|jr|sr)", '', out, flags=re.IGNORECASE) # remove suffix
-        out = re.sub(r"[,\.]", '', out)# remove dumb punctuation
+        out = re.sub(r"[,\.]", '', out) # remove dumb punctuation
     return out, error
 
 def valid_email(email):
@@ -210,7 +208,7 @@ def format_state(state):
     if state.upper() in state_abbreviations.values():
         return state.upper(), error
     updated_value = state_abbreviations.get(state.title(), "")
-    if not updated_value or state is '':
+    if not updated_value or state == '':
         error = 'Invalid state'
     return updated_value, error
 
@@ -238,10 +236,6 @@ def format_dollars(dollars, type):
             return dollars, error
 
     return out, error
-
-
-
-
 
 state_abbreviations = {
     "Alabama": "AL",
