@@ -18,11 +18,14 @@ class JVMDb:
     db_file_label = None
     db_file_label_var = None
 
-    def __init__(self, use_salesforce=False, secrets_path=os.path.expanduser("~/.sf_secrets.json"), file_path=None):
-        if use_salesforce:
-            self.load_from_salesforce(secrets_path)
-        else:
-            self.load_from_csv(file_path)
+    # def __init__(self, use_salesforce=False, secrets_path=os.path.expanduser("~/.sf_secrets.json"), file_path=None):
+    #     if use_salesforce:
+    #         self.load_from_salesforce(secrets_path)
+    #     else:
+            
+    #         default_path = os.path.join(os.getcwd(), "llpa_test.csv")
+    #         self.load_from_csv(file_path or default_path)
+
 
     def load_from_csv(self, file_path):
         self.file_path = file_path
