@@ -3,8 +3,9 @@ Takes CSV files generated from MLS exports and formats the data them to match JV
 
 
 ## Requirements
-All you need to run this is the latest version of [Python 3](https://www.python.org/downloads/). It has only been tested on Windows 10.
-If you want to automatically update this code, you also need to install [Git](https://git-scm.com/download/win)
+1. You need to run this is the latest version of [Python 3](https://www.python.org/downloads/). It has only been tested on Windows 10. (Make sure to add it to your PATH
+2. You also need Salesforce CLI, you can download it here for your operating system (Windows x64): [Salesforce CLI](https://developer.salesforce.com/tools/salesforcecli). After downloading, paste the following into your command prompt: ```pip install -r requirements.txt```
+3. (Optional) If you want to automatically update this code, you also need to install [Git](https://git-scm.com/download/win)
 
 
 ## How To Download With Git
